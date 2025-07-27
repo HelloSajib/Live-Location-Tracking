@@ -82,20 +82,18 @@ class _HomePageState extends State<HomePage> {
                   markers: {
 
                     Marker(
-                        markerId: MarkerId("start 1"),
-                        position: LatLng(23.874369603652664, 90.39083844449992),
-                        icon: startingPointMarker ??
-                            BitmapDescriptor.defaultMarker
-                    ),
-
-
-                    Marker(
                         markerId: MarkerId("end 1"),
                         position: LatLng(23.879010040329618, 90.39063459659631),
                         icon: destinationPointMarker ??
                             BitmapDescriptor.defaultMarker
                     ),
 
+                    Marker(
+                        markerId: MarkerId("start 1"),
+                        position: LatLng(23.874369603652664, 90.39083844449992),
+                        icon: startingPointMarker ??
+                            BitmapDescriptor.defaultMarker
+                    ),
                   },
                   fortyFiveDegreeImageryEnabled: false,
                   polylines: {
@@ -108,6 +106,8 @@ class _HomePageState extends State<HomePage> {
                       points: [
                         LatLng(23.874369603652664, 90.39083844449992), // Starting point
                         LatLng(23.879010040329618, 90.39063459659631),
+                        LatLng(23.876645694900358, 90.38883215208978),
+                        LatLng(23.87636118569267, 90.3922331932122),
                       ],
                       patterns: [
                         PatternItem.dot,
