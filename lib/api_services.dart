@@ -4,7 +4,7 @@ import 'package:live_location_tracking/place_details_model.dart';
 import 'package:live_location_tracking/places_model.dart';
 
 class ApiServices {
-  final String apiKey = "AIzaSyBZDcw5xHLrjw4Zap6c0fkYDOoxRmCSuDM";
+  final String apiKey = "";
 
   /// Get place autocomplete suggestions using Places API (New)
   Future<PlacesModel?> getPlaces(String input) async {

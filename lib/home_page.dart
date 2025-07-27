@@ -14,8 +14,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final SearchController searchController = SearchController();
-  final Completer<GoogleMapController> _controller =
-  Completer<GoogleMapController>();
+  final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
+  BitmapDescriptor? destinationPointMarker;
+  BitmapDescriptor? startingPointMarker;
 
   static const CameraPosition _initialCameraPosition = CameraPosition(
     target: LatLng(23.874605005690704, 90.39072062173672),
@@ -31,13 +32,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   void onChangedSearch(String value){
-    print("Hello I am");
     _searchSubject.add(value);
   }
+
+
+  Future<void> markerIcon() async {
+    startingPointMarker = await BitmapDescriptor.asset(
+        ImageConfiguration(size: Size(48, 48)),
+        "assets/images/pin_point.png"
+    );
+    destinationPointMarker = await BitmapDescriptor.asset(
+        ImageConfiguration(size: Size(48, 48)),
+        "assets/images/destinations.png"
+    );
+    assert(startingPointMarker != null, "Start point marker Null");
+    assert(destinationPointMarker != null, "Destination point marker Null");
+    setState(() {});
+  }
+
+
 
   @override
   void initState() {
     super.initState();
+    markerIcon();
     searchLocation();
   }
 
@@ -57,9 +75,50 @@ class _HomePageState extends State<HomePage> {
                 GoogleMap(
                   mapType: MapType.normal,
                   initialCameraPosition: _initialCameraPosition,
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller.complete(controller);
+                  compassEnabled: true,
+                  indoorViewEnabled: true,
+                  trafficEnabled: false,
+                  zoomControlsEnabled: false,
+                  markers: {
+
+                    Marker(
+                        markerId: MarkerId("start 1"),
+                        position: LatLng(23.874369603652664, 90.39083844449992),
+                        icon: startingPointMarker ??
+                            BitmapDescriptor.defaultMarker
+                    ),
+
+
+                    Marker(
+                        markerId: MarkerId("end 1"),
+                        position: LatLng(23.879010040329618, 90.39063459659631),
+                        icon: destinationPointMarker ??
+                            BitmapDescriptor.defaultMarker
+                    ),
+
                   },
+                  fortyFiveDegreeImageryEnabled: false,
+                  polylines: {
+
+                    Polyline(
+                      visible: true,
+                      polylineId: PolylineId('polyline1'),
+                      color: Colors.red,
+                      width: 8,
+                      points: [
+                        LatLng(23.874369603652664, 90.39083844449992), // Starting point
+                        LatLng(23.879010040329618, 90.39063459659631),
+                      ],
+                      patterns: [
+                        PatternItem.dot,
+                        PatternItem.gap(5),
+                      ]
+                    ),
+
+                  },
+                  // onMapCreated: (GoogleMapController controller) {
+                  //   _controller.complete(controller);
+                  // },
                 ),
 
 
