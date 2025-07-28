@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:live_location_tracking/api_services.dart';
 import 'package:rxdart/rxdart.dart';
@@ -17,6 +18,12 @@ class _HomePageState extends State<HomePage> {
   final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
   BitmapDescriptor? destinationPointMarker;
   BitmapDescriptor? startingPointMarker;
+
+  PolylinePoints polylinePoints = PolylinePoints(apiKey: "");
+  final PointLatLng startCoordinates = PointLatLng(23.874369603652664, 90.39083844449992);
+  final PointLatLng destinationCoordinates = PointLatLng(23.874369603652664, 90.39083844449992);
+
+  final List<LatLng> points = [];
 
   static const CameraPosition _initialCameraPosition = CameraPosition(
     target: LatLng(23.874605005690704, 90.39072062173672),
@@ -51,12 +58,36 @@ class _HomePageState extends State<HomePage> {
   }
 
 
+  Future<void> getPoints() async {
+    RoutesApiRequest request = RoutesApiRequest(
+      origin: startCoordinates,
+      destination: destinationCoordinates,
+      travelMode: TravelMode.driving, // Try driving first
+    );
+
+    RoutesApiResponse response = await polylinePoints.getRouteBetweenCoordinatesV2(
+      request: request,
+    );
+
+    if (response.routes.isNotEmpty) {
+      List<PointLatLng>? pointLatLngs = response.routes.first.polylinePoints;
+      points.clear();
+      pointLatLngs?.forEach((point){
+        points.add(LatLng(point.latitude, point.longitude));
+      });
+    } else {
+      print("No routes found. Status: ${response.status}, Error: ${response.errorMessage}");
+    }
+    setState(() {});
+  }
+
 
   @override
   void initState() {
     super.initState();
     markerIcon();
-    searchLocation();
+    getPoints();
+    //searchLocation();
   }
 
   @override
@@ -89,11 +120,26 @@ class _HomePageState extends State<HomePage> {
                     ),
 
                     Marker(
-                        markerId: MarkerId("start 1"),
-                        position: LatLng(23.874369603652664, 90.39083844449992),
-                        icon: startingPointMarker ??
+                        markerId: MarkerId("end 2"),
+                        position: LatLng(23.876645694900358, 90.38883215208978),
+                        icon: destinationPointMarker ??
                             BitmapDescriptor.defaultMarker
                     ),
+
+                    Marker(
+                        markerId: MarkerId("end 3"),
+                        position: LatLng(23.87636118569267, 90.3922331932122),
+                        icon: destinationPointMarker ??
+                            BitmapDescriptor.defaultMarker
+                    ),
+
+                    Marker(
+                        markerId: MarkerId("end 4"),
+                        position: LatLng(23.874369603652664, 90.39083844449992), // Starting point,
+                        icon: destinationPointMarker ??
+                            BitmapDescriptor.defaultMarker
+                    ),
+
                   },
                   fortyFiveDegreeImageryEnabled: false,
                   polylines: {
@@ -103,12 +149,7 @@ class _HomePageState extends State<HomePage> {
                       polylineId: PolylineId('polyline1'),
                       color: Colors.red,
                       width: 8,
-                      points: [
-                        LatLng(23.874369603652664, 90.39083844449992), // Starting point
-                        LatLng(23.879010040329618, 90.39063459659631),
-                        LatLng(23.876645694900358, 90.38883215208978),
-                        LatLng(23.87636118569267, 90.3922331932122),
-                      ],
+                      points: points,
                       patterns: [
                         PatternItem.dot,
                         PatternItem.gap(5),
